@@ -29,7 +29,7 @@ class PhotoboothUI:
     def loop(self):
         while self.running:
             for e in pygame.event.get():
-                if e.type == pygame.QUIT or (e.type == KEYDOWN and e.key == K_ESCAPE):
+                if e.type == pygame.QUIT or (e.type == KEYDOWN and e.key == K_ESCAPE) or (e.type == KEYDOWN and e.key == K_q):
                     self.current_frame.quit()
                     self.running = False
                 elif e.type == KEYDOWN:

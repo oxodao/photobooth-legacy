@@ -2,6 +2,7 @@ import pygame.camera
 from input.consts import *
 from .frame import Frame
 from .flash import Flash
+from .countdown import Countdown
 
 from ui.frame_display_picture import *
 
@@ -13,6 +14,7 @@ class FrameCamera(Frame):
         camlist = pygame.camera.list_cameras()
 
         self.flash = Flash(pbui.size, 1000, 800)
+        self.countdown = None
 
         if camlist:
             self.cam = pygame.camera.Camera(camlist[0], self._pbui.size)
@@ -24,6 +26,8 @@ class FrameCamera(Frame):
 
     def render(self, display: pygame.display):
         font = pygame.font.SysFont(None, 24)
+        if self.countdown is None:
+            self.countdown = Countdown(self._pbui.size, 3000, pygame.font.SysFont(None, 128))
 
         if self.cam is None:
             text = font.render('No camera detected', True, 0xFF0000FF)
@@ -33,18 +37,21 @@ class FrameCamera(Frame):
         elif self.cam.query_image():
             picture = pygame.surface.Surface(self._pbui.size, 0, self._pbui.size)
             picture = self.cam.get_image(picture)
-            picture = self.flash.render(picture, self.take_picture)
+            if self.countdown is not None:
+                picture = self.countdown.render(picture, self.take_picture)
+            # @TODO: Find a way to make flash work w/ picture :)
+            #picture = self.flash.render(picture, self.take_picture)
 
             self._frame.blit(picture, (0, 0))
         super().render(display)
 
     def take_picture(self):
-        print("toto")
+        self._pbui.set_frame(FrameDisplayPicture(self._pbui))
 
     def process_input(self, action: str):
         if action == KEYBIND_TAKE_SHOT:
             print("Taking one shot")
-            self._pbui.set_frame(FrameDisplayPicture(self._pbui))
+            self.countdown.start()
         elif action == KEYBIND_MULTI_SHOT:
             print("Taking multi shot")
             self.flash.flash()
