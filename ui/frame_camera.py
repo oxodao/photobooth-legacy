@@ -1,21 +1,18 @@
 import pygame.camera
 from input.consts import *
 from .frame import Frame
+from .flash import Flash
 
 from ui.frame_display_picture import *
 
 class FrameCamera(Frame):
-
-    flashing_start: int
-    flashing_duration: int
 
     def __init__(self, pbui):
         super().__init__(pbui)
         pygame.camera.init()
         camlist = pygame.camera.list_cameras()
 
-        self.flashing = False
-        self.flashing_duration = 1000
+        self.flash = Flash(pbui.size, 1000, 800)
 
         if camlist:
             self.cam = pygame.camera.Camera(camlist[0], self._pbui.size)
@@ -36,18 +33,13 @@ class FrameCamera(Frame):
         elif self.cam.query_image():
             picture = pygame.surface.Surface(self._pbui.size, 0, self._pbui.size)
             picture = self.cam.get_image(picture)
-
-            if self.flashing:
-                flash = pygame.surface.Surface(self._pbui.size, pygame.SRCALPHA)
-                flash.fill((255, 255, 255, 180))
-                picture.blit(flash, (0, 0))
-
-                now = pygame.time.get_ticks()
-                if now - self.flashing_start >= self.flashing_duration:
-                    self.flashing = False
+            picture = self.flash.render(picture, self.take_picture)
 
             self._frame.blit(picture, (0, 0))
         super().render(display)
+
+    def take_picture(self):
+        print("toto")
 
     def process_input(self, action: str):
         if action == KEYBIND_TAKE_SHOT:
@@ -55,8 +47,7 @@ class FrameCamera(Frame):
             self._pbui.set_frame(FrameDisplayPicture(self._pbui))
         elif action == KEYBIND_MULTI_SHOT:
             print("Taking multi shot")
-            self.flashing = True
-            self.flashing_start = pygame.time.get_ticks()
+            self.flash.flash()
 
     def quit(self):
         if self.cam is not None:
