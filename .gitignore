@@ -1,0 +1,4 @@
+# created by virtualenv automatically
+.direnv/python*
+lib/python*
+__pycache__
