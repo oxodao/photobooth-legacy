@@ -23,7 +23,6 @@ class FrameCamera(Frame):
         else:
             self.cam = None
 
-
     def render(self, display: pygame.display):
         font = pygame.font.SysFont(None, 24)
         if self.countdown is None:
@@ -37,10 +36,11 @@ class FrameCamera(Frame):
         elif self.cam.query_image():
             picture = pygame.surface.Surface(self._pbui.size, 0, self._pbui.size)
             picture = self.cam.get_image(picture)
+
             if self.countdown is not None:
-                picture = self.countdown.render(picture, self.take_picture)
-            # @TODO: Find a way to make flash work w/ picture :)
-            #picture = self.flash.render(picture, self.take_picture)
+                picture = self.countdown.render(picture, lambda: self.flash.flash())
+
+            picture = self.flash.render(picture, self.take_picture)
 
             self._frame.blit(picture, (0, 0))
         super().render(display)

@@ -20,10 +20,11 @@ class Countdown:
 
     def render(self, surface, callback):
         if self.countdown:
-            surface.blit(self.surface, (0, 0))
+            if surface is not None:
+                surface.blit(self.surface, (0, 0))
 
             diff = pygame.time.get_ticks() - self.countdown_start
-            if self.countdown and diff >= self.duration+999: # We don't want 0 to display so.. 999 (:
+            if self.countdown and diff >= self.duration+250: # magic value so that the last seconds doesnt lasts too long
                 self.countdown = False
                 callback()
 
