@@ -6,8 +6,6 @@ from pygame.locals import *
 from ui.frame_camera import *
 from input.consts import *
 
-from .frame_splash import FrameSplash
-
 if is_raspberrypi():
     import input.rpi
 
@@ -17,7 +15,7 @@ class PhotoboothUI:
         self.size = monitor_size
         self.running = True
         self.camera_frame = FrameCamera(self)
-        self.current_frame = FrameSplash(self)
+        self.current_frame = self.camera_frame
         self.fullscreen = fullscreen
 
     def init(self):

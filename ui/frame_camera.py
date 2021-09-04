@@ -6,6 +6,8 @@ from .countdown import Countdown
 
 from ui.frame_display_picture import *
 
+from utils.files import *
+
 class FrameCamera(Frame):
 
     def __init__(self, pbui):
@@ -34,23 +36,24 @@ class FrameCamera(Frame):
             self._frame.blit(text, rect)
 
         elif self.cam.query_image():
-            picture = pygame.surface.Surface(self._pbui.size, 0, self._pbui.size)
-            picture = self.cam.get_image(picture)
+            camPicture = pygame.surface.Surface(self._pbui.size, 0, self._pbui.size)
+            camPicture = self.cam.get_image(camPicture)
 
             if self.countdown is not None:
-                picture = self.countdown.render(picture, lambda: self.flash.flash())
+                picture = self.countdown.render(camPicture.copy(), lambda: self.flash.flash())
 
-            picture = self.flash.render(picture, self.take_picture)
+            picture = self.flash.render(picture, lambda: self.take_picture(camPicture))
 
             self._frame.blit(picture, (0, 0))
         super().render(display)
 
-    def take_picture(self):
+    def take_picture(self, picture):
+        print("Saving picture !")
+        pygame.image.save(picture, get_picture_file())
         self._pbui.set_frame(FrameDisplayPicture(self._pbui))
 
     def process_input(self, action: str):
         if action == KEYBIND_TAKE_SHOT:
-            print("Taking one shot")
             self.countdown.start()
         elif action == KEYBIND_MULTI_SHOT:
             print("Taking multi shot")
