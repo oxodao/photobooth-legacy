@@ -1,16 +1,19 @@
 import pygame 
 
-from utils.config import RESOLUTION
+from utils.config import CAMERA_RESOLUTION, REFRESH_TIMEOUT, RESOLUTION
 
 class Camera:
     def __init__(self):
         pygame.camera.init()
         self._font = pygame.font.SysFont(None, 24)
-        self._camera_resolution = (1280, 720)
+        self._camera_resolution = CAMERA_RESOLUTION
+        self._refresh_timeout = REFRESH_TIMEOUT
 
         self._no_camera_surface = build_no_camera_surface(self._font, self._camera_resolution)
         self._camPicture = pygame.surface.Surface(self._camera_resolution)
         self._scaledPicture = None
+
+        self._last_taken_frame = pygame.time.get_ticks()
 
         camlist = pygame.camera.list_cameras()
 
@@ -43,12 +46,21 @@ class Camera:
 
         return self._last_scaled_frame.copy()
 
-    # @TODO: Do not fetch cam every frame, add a framerate
     def fetch_cam_frame(self):
-        if self._cam is not None and self._cam.query_image():
-            self._last_frame = pygame.surface.Surface(self._camera_resolution)
-            self._last_frame = self._cam.get_image(self._camPicture)
-            self._last_scaled_frame = pygame.transform.scale(self._last_frame, RESOLUTION)
+        if self._cam is None:
+            return
+
+        if not self._cam.query_image():
+            return
+
+        now = pygame.time.get_ticks()
+        if now - self._last_taken_frame < self._refresh_timeout:
+            return
+
+        self._last_frame = pygame.surface.Surface(self._camera_resolution)
+        self._last_frame = self._cam.get_image(self._camPicture)
+        self._last_scaled_frame = pygame.transform.scale(self._last_frame, RESOLUTION)
+        self._last_taken_frame = now
 
     def stop(self):
         if self._cam is not None:
