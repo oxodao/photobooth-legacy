@@ -1,15 +1,19 @@
 import pygame
 
 class Countdown:
-    def __init__(self, size: tuple, duration: int, font):
+    def __init__(self, size: tuple, duration: int, callback):
         self.size = size
-        self.font = font
+        self.font = pygame.font.SysFont(None, 128)
+
         self.countdown = False
         self.countdown_start = 0
         self.duration = duration
+
+        self._callback = callback
         self.processed_callback = False
 
         self.last_count = int(duration/1000)
+
         self.build_surface(self.last_count)
 
     def start(self):
@@ -18,7 +22,7 @@ class Countdown:
             self.countdown_start = pygame.time.get_ticks()
             self.processed_callback = False
 
-    def render(self, surface, callback):
+    def render(self, surface):
         if self.countdown:
             if surface is not None:
                 surface.blit(self.surface, (0, 0))
@@ -26,7 +30,7 @@ class Countdown:
             diff = pygame.time.get_ticks() - self.countdown_start
             if self.countdown and diff >= self.duration+250: # magic value so that the last seconds doesnt lasts too long
                 self.countdown = False
-                callback()
+                self._callback()
 
             diff_seconds = int(diff/1000)
             if self.last_count is not diff_seconds:
