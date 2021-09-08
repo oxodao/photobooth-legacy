@@ -35,8 +35,9 @@ class FrameCamera(Frame):
         if callable(picture):
             picture = picture()
 
-        pygame.image.save(picture, get_picture_file())
-        self._pbui.set_frame(FrameDisplayPicture(self._pbui, self._root_surface))
+        last_taken_picture = get_picture_file()
+        pygame.image.save(picture, last_taken_picture)
+        self._pbui.set_frame(FrameDisplayPicture(self._pbui, self._root_surface, last_taken_picture))
 
     def process_input(self, action: str):
         if action == KEYBIND_TAKE_SHOT:

@@ -2,12 +2,14 @@ import pygame
 from .frame import Frame
 
 class FrameDisplayPicture(Frame):
-    def __init__(self, pbui, root_surface):
+    def __init__(self, pbui, root_surface, picture_path):
         super().__init__(pbui, root_surface)
 
         self.shown_at = pygame.time.get_ticks()
         self.timeout = 3000
         self.exited = False
+
+        self.picture_path = picture_path
 
     def render(self, display: pygame.display):
         font = pygame.font.SysFont(None, 24)
