@@ -1,10 +1,7 @@
-import pygame
-
 class Frame:
-    def __init__(self, pbui):
+    def __init__(self, pbui, root_surface):
         self._pbui = pbui
-        self._frame = pygame.surface.Surface(pbui.size, 0, pbui.size)
+        self._root_surface = root_surface
 
-    def render(self, display: pygame.display):
-        display.blit(self._frame, (0, 0))
-        pygame.display.flip()
+    def render(self):
+        pass

@@ -29,5 +29,3 @@ class Flash:
                 self._processed_callback = True
             elif diff >= self._duration:
                 self._flashing = False
-
-        return surface

@@ -2,8 +2,8 @@ import pygame
 from .frame import Frame
 
 class FrameDisplayPicture(Frame):
-    def __init__(self, pbui):
-        super().__init__(pbui)
+    def __init__(self, pbui, root_surface):
+        super().__init__(pbui, root_surface)
 
         self.shown_at = pygame.time.get_ticks()
         self.timeout = 3000
@@ -18,14 +18,12 @@ class FrameDisplayPicture(Frame):
         pict_surface = font.render('Display the picture/video', True, 0xFFFF00FF)
 
         rect = pict_surface.get_rect(center=(self._pbui.size[0]/2, self._pbui.size[1]/2))
-        self._frame.blit(pict_surface, rect)
+        self._root_surface.blit(pict_surface, rect)
 
         now = pygame.time.get_ticks()
         if now - self.shown_at >= self.timeout and self.exited is False:
             self._pbui.set_frame(self._pbui.camera_frame)
             self.exited = True
-
-        super().render(display)
 
     def process_input(self, action: str):
         return

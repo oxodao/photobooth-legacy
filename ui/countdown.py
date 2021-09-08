@@ -1,8 +1,18 @@
 import pygame
 
+class TimedSurface:
+    def __init__(self, font, size, number):
+        self.number = number
+
+        self._txt = font.render(str(int(number)), True, (255, 255, 255))
+        self._rect = self._txt.get_rect(center=(size[0]/2, size[1]/2))
+
+    def render(self, root_surface):
+        root_surface.blit(self._txt, self._rect)
+
 class Countdown:
-    def __init__(self, size: tuple, duration: int, callback):
-        self.size = size
+    def __init__(self, pbui, duration: int, callback):
+        self.pbui = pbui
         self.font = pygame.font.SysFont(None, 128)
 
         self.countdown = False
@@ -12,37 +22,29 @@ class Countdown:
         self._callback = callback
         self.processed_callback = False
 
-        self.last_count = int(duration/1000)
-
-        self.build_surface(self.last_count)
+        self._last_action_tick = 0
 
     def start(self):
         if not self.countdown:
             self.countdown = True
-            self.countdown_start = pygame.time.get_ticks()
+            self._last_action_tick = self.pbui._clock.tick()
             self.processed_callback = False
+            self.remaining = self.duration
+            self.surface = TimedSurface(self.font, self.pbui.size, self.remaining)
 
-    def render(self, surface):
+    def render(self, root_surface):
         if self.countdown:
-            if surface is not None:
-                surface.blit(self.surface, (0, 0))
+            self._last_action_tick += self.pbui.tick()
 
-            diff = pygame.time.get_ticks() - self.countdown_start
-            if self.countdown and diff >= self.duration+250: # magic value so that the last seconds doesnt lasts too long
-                self.countdown = False
-                self._callback()
+            if self._last_action_tick >= 500: # Not real seconds but meh
+                self.remaining -= 1
+                self._last_action_tick = 0
+                if self.remaining == 0:
+                    self.countdown = False
+                    self._callback()
+                    self.processed_callback = True
+                else:
+                    self.surface = TimedSurface(self.font, self.pbui.size, self.remaining)
 
-            diff_seconds = int(diff/1000)
-            if self.last_count is not diff_seconds:
-                self.build_surface((self.duration/1000 - diff_seconds))
+            self.surface.render(root_surface)
 
-        return surface
-
-    def build_surface(self, seconds):
-        surface = pygame.surface.Surface(self.size, pygame.SRCALPHA, self.size)
-
-        txt = self.font.render(str(int(seconds)), True, (255, 255, 255))
-        rect = txt.get_rect(center=(self.size[0]/2, self.size[1]/2))
-        surface.blit(txt, rect)
-
-        self.surface = surface
