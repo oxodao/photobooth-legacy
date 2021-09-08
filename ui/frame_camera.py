@@ -22,6 +22,8 @@ class FrameCamera(Frame):
 
         self.filters = [self.countdown, self.flash]
 
+        self.somethings_happening = False
+
     def render(self):
         scaled = self.camera.get_scaled_frame()
 
@@ -37,12 +39,15 @@ class FrameCamera(Frame):
 
         last_taken_picture = get_picture_file()
         pygame.image.save(picture, last_taken_picture)
+        self.somethings_happening = False
         self._pbui.set_frame(FrameDisplayPicture(self._pbui, self._root_surface, last_taken_picture))
 
     def process_input(self, action: str):
         if action == KEYBIND_TAKE_SHOT:
+            self.somethings_happening = True
             self.countdown.start()
         elif action == KEYBIND_MULTI_SHOT:
+            self.somethings_happening = True
             self.flash.flash()
 
     def quit(self):

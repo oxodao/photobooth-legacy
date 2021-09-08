@@ -11,16 +11,14 @@ class FrameDisplayPicture(Frame):
 
         self.picture_path = picture_path
 
-    def render(self, display: pygame.display):
-        font = pygame.font.SysFont(None, 24)
+        self.frame_picture = pygame.image.load(r'assets/frame.png')
+        self.frame_picture = pygame.transform.smoothscale(self.frame_picture, pbui.size)
+        self.last_picture = pygame.image.load(picture_path)
 
-        pict_surface = pygame.surface.Surface(self._pbui.size)
-        pict_surface.fill((0, 0, 0))
+    def render(self):
 
-        pict_surface = font.render('Display the picture/video', True, 0xFFFF00FF)
-
-        rect = pict_surface.get_rect(center=(self._pbui.size[0]/2, self._pbui.size[1]/2))
-        self._root_surface.blit(pict_surface, rect)
+        self._root_surface.blit(self.last_picture, (0, 0))
+        self._root_surface.blit(self.frame_picture, (0, 0))
 
         now = pygame.time.get_ticks()
         if now - self.shown_at >= self.timeout and self.exited is False:
